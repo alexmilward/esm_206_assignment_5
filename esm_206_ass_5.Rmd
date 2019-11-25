@@ -1,5 +1,5 @@
 ---
-title: "esm_206_assignment_5"
+title: "The Majesty of the Giant Salamander: A Memoir"
 author: "Alex Milward and Pat Byrne"
 date: "11/24/2019"
 output: html_document
@@ -17,6 +17,7 @@ library(kableExtra)
 library(here)
 library(effsize)
 library(ggbeeswarm)
+library(lubridate)
 
 ```
 
