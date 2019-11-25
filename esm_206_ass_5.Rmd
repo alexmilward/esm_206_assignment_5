@@ -1,0 +1,37 @@
+---
+title: "esm_206_assignment_5"
+author: "Alex Milward and Pat Byrne"
+date: "11/24/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+#Attach packages, not sure yet which we need
+library(tidyverse)
+library(janitor)
+library(kableExtra)
+library(here)
+library(effsize)
+library(ggbeeswarm)
+
+```
+
+```{r}
+# Read in data
+vertebrates <- read_csv("mack_creek_vertebrates.csv") %>% 
+  clean_names()
+```
+
+ 
+
+### Introduction
+
+### Data and Methods
+
+### Results
+
+#### Results A: Visually compare annual salamander counts in old growth (OG) and clear cut (CC) sections of Mack Creek
