@@ -5,8 +5,8 @@ date: "11/24/2019"
 output: html_document
 ---
 
-```{r setup, include=FALSE, message=FALSE, warning=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```
 
 ```{r, include=FALSE}
@@ -37,14 +37,19 @@ vertebrates <- read_csv("mack_creek_vertebrates.csv") %>%
 #### Results A: Visually compare annual salamander counts in old growth (OG) and clear cut (CC) sections of Mack Creek
 
 ```{r}
-# Find total annual counts for two different sections of Mack Creek
+
+#Find total annual counts for two different sections of Mack Creek
 
 vertebrates_section <- vertebrates %>% 
   select(year, section) %>% 
   group_by(year, section) %>% 
-  count(section) %>% 
+  count(section)
 
-# Graph changes in counts over time for both sections
+
+```
+
+```{r}
+# Plot changes in counts over time for both sections
 
 ggplot(data = vertebrates_section, aes(x = year, y = n)) +
   geom_line(aes(color = section), show.legend = FALSE) +
@@ -53,10 +58,20 @@ ggplot(data = vertebrates_section, aes(x = year, y = n)) +
   theme_bw() +
   scale_x_continuous(expand = c(0.1,0)) +
   scale_y_continuous(expand = c(0.1,0)) +
-  labs(x = "salamander count",
-       y = "year",
+  labs(x = "year",
+       y = "salamander count",
        title = "Change in salamander counts in old growth and clear cut forests",
        subtitle = "1987 - 2017") 
 
+ggplot(data = vertebrates_section, aes(x = year, y = n)) +
+  geom_col(aes(fill = section), color = "black", show.legend = FALSE) +
+  facet_wrap(~section) +
+  theme_bw() +
+  scale_x_continuous(expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0)) +
+  labs(x = "year",
+       y = "salamander count",
+       title = "Change in salamander counts in old growth and clear cut forests",
+       subtitle = "1987 - 2017") 
 ```
 
