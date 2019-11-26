@@ -42,16 +42,21 @@ vertebrates <- read_csv("mack_creek_vertebrates.csv") %>%
 vertebrates_section <- vertebrates %>% 
   select(year, section) %>% 
   group_by(year, section) %>% 
-  count(section)
+  count(section) %>% 
 
 # Graph changes in counts over time for both sections
 
 ggplot(data = vertebrates_section, aes(x = year, y = n)) +
-  geom_line(aes(color = section)) +
-  geom_point(aes(color = section)) +
-  theme_minimal() +
+  geom_line(aes(color = section), show.legend = FALSE) +
+  geom_point(aes(color = section), show.legend = FALSE) +
+  facet_wrap(~section) +
+  theme_bw() +
+  scale_x_continuous(expand = c(0.1,0)) +
+  scale_y_continuous(expand = c(0.1,0)) +
   labs(x = "salamander count",
        y = "year",
-       title = "Change in salamaner counts from 1987-2017 in old growth and clear cut forests")
+       title = "Change in salamander counts in old growth and clear cut forests",
+       subtitle = "1987 - 2017") 
+
 ```
 
