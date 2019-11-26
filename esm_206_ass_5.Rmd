@@ -35,3 +35,23 @@ vertebrates <- read_csv("mack_creek_vertebrates.csv") %>%
 ### Results
 
 #### Results A: Visually compare annual salamander counts in old growth (OG) and clear cut (CC) sections of Mack Creek
+
+```{r}
+# Find total annual counts for two different sections of Mack Creek
+
+vertebrates_section <- vertebrates %>% 
+  select(year, section) %>% 
+  group_by(year, section) %>% 
+  count(section)
+
+# Graph changes in counts over time for both sections
+
+ggplot(data = vertebrates_section, aes(x = year, y = n)) +
+  geom_line(aes(color = section)) +
+  geom_point(aes(color = section)) +
+  theme_minimal() +
+  labs(x = "salamander count",
+       y = "year",
+       title = "Change in salamaner counts from 1987-2017 in old growth and clear cut forests")
+```
+
