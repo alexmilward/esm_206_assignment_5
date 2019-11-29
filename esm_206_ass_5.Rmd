@@ -61,7 +61,8 @@ ggplot(data = vertebrates_section, aes(x = year, y = n)) +
   labs(x = "year",
        y = "salamander count",
        title = "Change in salamander counts in old growth and clear cut forests",
-       subtitle = "1987 - 2017") 
+       subtitle = "1987 - 2017",
+       caption = "Figure 1: Changes in salamander abundance in old growth and clear cut forests from 1987 to 2017") 
 
 ggplot(data = vertebrates_section, aes(x = year, y = n)) +
   geom_col(aes(fill = section), color = "black", show.legend = FALSE) +
@@ -72,6 +73,28 @@ ggplot(data = vertebrates_section, aes(x = year, y = n)) +
   labs(x = "year",
        y = "salamander count",
        title = "Change in salamander counts in old growth and clear cut forests",
-       subtitle = "1987 - 2017") 
+       subtitle = "1987 - 2017",
+       caption = "Figure 1: Changes in salamander abundance in old growth and clear cut forests from 1987 to 2017") 
 ```
+
+#### Results B: Table of 2017 salamander counts by channel classification (pool, cascades and side-channel) in old growth (OG) and clear cut (CC) sections of Mack Creek.
+
+```{r}
+# Group by OG and CC sections, and keep only data for pool, cascades, and side channels in 2017
+
+vertebrates_count <- vertebrates %>%
+  select(year, section, unittype) %>% 
+  filter(year == "2017", unittype %in% c("C", "P", "SC")) %>% 
+  count(unittype, section) %>% 
+  pivot_wider(names_from = unittype, values_from = n) %>% 
+  adorn_percentages(denominator = "row") %>% 
+  adorn_pct_formatting(digits = 0) %>% 
+  adorn_ns(position = "front")
+
+vertebrates_count %>%
+  kable(col.names = c("Forest Section", "Cascade", "Pool", "Side Channel")) %>% 
+  kable_styling()
+  
+```
+
 
