@@ -98,7 +98,7 @@ vertebrates_count %>%
   
 ```
 
-#### Results C: Significane of the effect of forest condition on channel location.
+#### Results C: Significance of the effect of forest condition on channel location.
 
 ```{r}
 # Same as before, now for chi-sqd test
@@ -115,6 +115,28 @@ vert_chi_test
 
 
 #### Results D: Comparison of weights in 2017 between sections.
+
+```{r}
+# Running a t test for weights between the two sections
+vertebrates_weights <- vertebrates %>% 
+  filter(year == "2017") %>% 
+  select(weight, section) 
+
+OG_weights <- vertebrates_weights %>% 
+  filter(section == 'OG') %>% 
+  select(weight)
+
+CC_weights <- vertebrates_weights %>% 
+  filter(section == 'CC') %>% 
+  select(weight)
+
+OG_test <- OG_weights$weight
+CC_test <- CC_weights$weight
+
+weights_ttest <- t.test(OG_test, CC_test)
+weights_d <- cohen.d(OG_test, CC_test)
+
+```
 
 
 #### Results E: Comparison of the weights between channel locations.
