@@ -133,8 +133,13 @@ CC_weights <- vertebrates_weights %>%
 OG_test <- OG_weights$weight
 CC_test <- CC_weights$weight
 
-weights_ttest <- t.test(OG_test, CC_test)
+weights_man_w <- wilcox.test(OG_test, CC_test)
 weights_d <- cohen.d(OG_test, CC_test)
+
+# ggplot(data = OG_weights, aes(x = weight)) +
+#   geom_histogram()
+# ggplot(data = CC_weights, aes(x = weight)) +
+#   geom_histogram()
 
 ```
 
