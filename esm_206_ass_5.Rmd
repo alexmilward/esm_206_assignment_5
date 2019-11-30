@@ -117,24 +117,24 @@ vert_chi_test
 #### Results D: Comparison of weights in 2017 between sections.
 
 ```{r}
-# Running a t test for weights between the two sections
+# Running a t test and a Mann-Whitney U test for weights between the two sections
 vertebrates_weights <- vertebrates %>% 
-  filter(year == "2017") %>% 
-  select(weight, section) 
+  filter(year == "2017", unittype %in% c("C", "P", "SC")) %>% 
+  select(weight, section, unittype) 
 
 OG_weights <- vertebrates_weights %>% 
   filter(section == 'OG') %>% 
   select(weight)
+OG_wts_vec <- OG_weights$weight
 
 CC_weights <- vertebrates_weights %>% 
   filter(section == 'CC') %>% 
   select(weight)
+CC_wts_vec <- CC_weights$weight
 
-OG_test <- OG_weights$weight
-CC_test <- CC_weights$weight
-
-weights_man_w <- wilcox.test(OG_test, CC_test)
-weights_d <- cohen.d(OG_test, CC_test)
+weights_man_w <- wilcox.test(OG_wts_vec, CC_wts_vec)
+weights_t <- t.test(OG_wts_vec, CC_wts_vec)
+weights_d <- cohen.d(OG_wts_vec, CC_wts_vec)
 
 # ggplot(data = OG_weights, aes(x = weight)) +
 #   geom_histogram()
@@ -145,4 +145,30 @@ weights_d <- cohen.d(OG_test, CC_test)
 
 
 #### Results E: Comparison of the weights between channel locations.
+
+```{r}
+# Wrangling the data for results E
+C_weights <- vertebrates_weights %>% 
+  filter(unittype == 'C') %>% 
+  select(weight)
+c_wts_vec <- C_weights$weight
+
+P_weights <- vertebrates_weights %>% 
+  filter(unittype == 'P') %>% 
+  select(weight)
+p_wts_vec <- P_weights$weight
+
+SC_weights <- vertebrates_weights %>% 
+  filter(unittype == 'SC') %>% 
+  select(weight)
+sc_wts_vec <- SC_weights$weight
+
+```
+
+```{r}
+# Visually comparing weights using a beeswarm plot (@ALEX: I think beeswarm with mean, maybe median (help with third part of E) and standard error is the way to go here cuz it's easy and gets the job done - ya boi is trying to work on this whole thing as little as possible lol)
+
+
+```
+
 
