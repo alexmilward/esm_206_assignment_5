@@ -18,6 +18,7 @@ library(here)
 library(effsize)
 library(ggbeeswarm)
 library(lubridate)
+library(ggridges)
 
 ```
 
@@ -163,11 +164,41 @@ SC_weights <- vertebrates_weights %>%
   select(weight)
 sc_wts_vec <- SC_weights$weight
 
+weights <- vertebrates_weights %>% 
+  select(-section) %>% 
+  group_by(unittype)
+
+weights_summary <- weights %>% 
+  summarize(mean_weight = mean(weight, na.rm = TRUE),
+            sd_weight = sd(weight, na.rm = TRUE),
+            sample_size = n(),
+            se_weight = sd((weight) / sqrt(n()), (na.rm = TRUE)),
+            var_weight = var(weight, na.rm = TRUE))
+
 ```
 
 ```{r}
 # Visually comparing weights using a beeswarm plot (@ALEX: I think beeswarm with mean, maybe median (help with third part of E) and standard error is the way to go here cuz it's easy and gets the job done - ya boi is trying to work on this whole thing as little as possible lol)
 
+ggplot() +
+  geom_jitter(data = weights,
+                aes(x = unittype, y = weight),
+                size = 1,
+              color = "gray70") +
+  scale_x_discrete(labels = c("Cascade", "Pools", "Side Channel")) +
+  geom_point(data = weights_summary, aes(x = unittype, y = mean_weight))
+  geom_errorbar(data = weights_summary,
+                aes(x = unittype,
+                    ymin = mean_weight - sd_weight,
+                    ymax = mean_weight + sd_weight))
+  
+  ggplot(data = weights, aes(x = weight, y = unittype)) +
+  geom_density_ridges(aes(fill = unittype, alpha = 0.5),
+                      show.legend = FALSE) +
+    scale_x_continuous(expand = c(0,0)) +
+    scale_y_discrete(labels = c("Side Channel", "Pool", "Cascade")) +
+    geom_point(data = weights_summary, aes(x = mean_weight, y = unittype)) +
+    theme_minimal()
 
 ```
 
