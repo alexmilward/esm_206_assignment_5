@@ -1,5 +1,5 @@
 ---
-title: "esm_206_assignment_5"
+title: "The Majesty of the Giant Salamander: A Memoir"
 author: "Alex Milward and Pat Byrne"
 date: "11/24/2019"
 output: html_document
@@ -17,6 +17,7 @@ library(kableExtra)
 library(here)
 library(effsize)
 library(ggbeeswarm)
+library(lubridate)
 
 ```
 
@@ -70,8 +71,8 @@ ggplot(data = vertebrates_section, aes(x = year, y = n)) +
   theme_bw() +
   scale_x_continuous(expand = c(0,0)) +
   scale_y_continuous(expand = c(0,0)) +
-  labs(x = "year",
-       y = "salamander count",
+  labs(x = "Year",
+       y = "No. Salamanders Observed",
        title = "Change in salamander counts in old growth and clear cut forests",
        subtitle = "1987 - 2017",
        caption = "Figure 1: Changes in salamander abundance in old growth and clear cut forests from 1987 to 2017") 
@@ -95,6 +96,79 @@ vertebrates_count %>%
   kable(col.names = c("Forest Section", "Cascade", "Pool", "Side Channel")) %>% 
   kable_styling()
   
+```
+
+#### Results C: Significance of the effect of forest condition on channel location.
+
+```{r}
+# Same as before, now for chi-sqd test
+vertebrates_chi <- vertebrates %>%
+  select(year, section, unittype) %>% 
+  filter(year == "2017", unittype %in% c("C", "P", "SC")) %>% 
+  count(unittype, section) %>% 
+  pivot_wider(names_from = unittype, values_from = n) %>% 
+  select(-section)
+
+vert_chi_test <- chisq.test(vertebrates_chi)
+vert_chi_test
+```
+
+
+#### Results D: Comparison of weights in 2017 between sections.
+
+```{r}
+# Running a t test and a Mann-Whitney U test for weights between the two sections
+vertebrates_weights <- vertebrates %>% 
+  filter(year == "2017", unittype %in% c("C", "P", "SC")) %>% 
+  select(weight, section, unittype) 
+
+OG_weights <- vertebrates_weights %>% 
+  filter(section == 'OG') %>% 
+  select(weight)
+OG_wts_vec <- OG_weights$weight
+
+CC_weights <- vertebrates_weights %>% 
+  filter(section == 'CC') %>% 
+  select(weight)
+CC_wts_vec <- CC_weights$weight
+
+weights_man_w <- wilcox.test(OG_wts_vec, CC_wts_vec)
+weights_t <- t.test(OG_wts_vec, CC_wts_vec)
+weights_d <- cohen.d(OG_wts_vec, CC_wts_vec)
+
+# ggplot(data = OG_weights, aes(x = weight)) +
+#   geom_histogram()
+# ggplot(data = CC_weights, aes(x = weight)) +
+#   geom_histogram()
+
+```
+
+
+#### Results E: Comparison of the weights between channel locations.
+
+```{r}
+# Wrangling the data for results E
+C_weights <- vertebrates_weights %>% 
+  filter(unittype == 'C') %>% 
+  select(weight)
+c_wts_vec <- C_weights$weight
+
+P_weights <- vertebrates_weights %>% 
+  filter(unittype == 'P') %>% 
+  select(weight)
+p_wts_vec <- P_weights$weight
+
+SC_weights <- vertebrates_weights %>% 
+  filter(unittype == 'SC') %>% 
+  select(weight)
+sc_wts_vec <- SC_weights$weight
+
+```
+
+```{r}
+# Visually comparing weights using a beeswarm plot (@ALEX: I think beeswarm with mean, maybe median (help with third part of E) and standard error is the way to go here cuz it's easy and gets the job done - ya boi is trying to work on this whole thing as little as possible lol)
+
+
 ```
 
 
