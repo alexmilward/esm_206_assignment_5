@@ -137,6 +137,7 @@ weights_man_w <- wilcox.test(OG_wts_vec, CC_wts_vec)
 weights_t <- t.test(OG_wts_vec, CC_wts_vec)
 weights_d <- cohen.d(OG_wts_vec, CC_wts_vec)
 
+
 # ggplot(data = OG_weights, aes(x = weight)) +
 #   geom_histogram()
 # ggplot(data = CC_weights, aes(x = weight)) +
@@ -186,11 +187,15 @@ ggplot() +
                 size = 1,
               color = "gray70") +
   scale_x_discrete(labels = c("Cascade", "Pools", "Side Channel")) +
-  geom_point(data = weights_summary, aes(x = unittype, y = mean_weight))
+  geom_point(data = weights_summary, aes(x = unittype, y = mean_weight)) +
   geom_errorbar(data = weights_summary,
                 aes(x = unittype,
                     ymin = mean_weight - sd_weight,
-                    ymax = mean_weight + sd_weight))
+                    ymax = mean_weight + sd_weight),
+                width = 0.2) +
+  labs(x = "Unit Type",
+       y = "Weight (g)",
+       title = "Pacific Giant Salamander weights in cascades, pools, and side channels")
   
   ggplot(data = weights, aes(x = weight, y = unittype)) +
   geom_density_ridges(aes(fill = unittype, alpha = 0.5),
@@ -198,8 +203,28 @@ ggplot() +
     scale_x_continuous(expand = c(0,0)) +
     scale_y_discrete(labels = c("Side Channel", "Pool", "Cascade")) +
     geom_point(data = weights_summary, aes(x = mean_weight, y = unittype)) +
-    theme_minimal()
+    theme_minimal() +
+    labs(x = "Weight (g)",
+       y = "Unit Type",
+       title = "Pacific Giant Salamander weights in cascades, pools, and side channels")
 
 ```
 
+```{r}
+#One-way ANOVA test to compare means across cascade, pool, and side channel salamanders
 
+#H0 - Means across all three are the same
+#Ha - At least two means are different
+
+weight_anova <- aov(weight ~ unittype, data = weights)
+summary(weight_anova)
+
+post_hoc <- TukeyHSD(weight_anova)
+post_hoc
+
+# p-value << 0.01 so we reject the null hypothesis.
+# Post hoc Tukey HSD test reveals that Side-Channels and Cascade mean size are not signficantly different, however, pool means differ significantly from cascade and side channel means.
+# I DONT KNOW WHY WE ARE COMPARING MEANS IF THE DATA IS NOT NORMALLY DISTRIBUTED.  Seems like medians would be better, however, results E asks us to compare means.
+```
+
+We are concerned with comparing means across unit types because the data is not normally distributed.  The data is positively skewed, and so medians would be better for statistical analysis.  For this we would run a Kruskal-Wallis non-parametric test.
