@@ -5,85 +5,75 @@ date: "11/24/2019"
 output: html_document
 ---
 
+### Introduction
+
+### Data and Methods
+
+This analysis was performed in Rstudio version 1.2.1335 running R version 3.6.1. The following packages were used in this report:
+
+- tidyverse, version 1.2.1
+- janitor, version 1.2.0
+- effsize, version 0.7.6
+- kableExtra, version 1.1.0
+- ggridges, version 0.5.1
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```
 
 ```{r, include=FALSE}
-#Attach packages, not sure yet which we need
+# Attaching packages
 library(tidyverse)
 library(janitor)
 library(kableExtra)
-library(here)
 library(effsize)
-library(ggbeeswarm)
-library(lubridate)
 library(ggridges)
-
 ```
 
 ```{r}
-# Read in data
+# Reading in data and cleaning names
 vertebrates <- read_csv("mack_creek_vertebrates.csv") %>% 
   clean_names()
 ```
 
- 
-
-### Introduction
-
-### Data and Methods
-
 ### Results
 
-#### Results A: Visually compare annual salamander counts in old growth (OG) and clear cut (CC) sections of Mack Creek
+#### Temporal Trends in Salamander Abundance (1987-2017)
 
 ```{r}
-
-#Find total annual counts for two different sections of Mack Creek
-
+# Find total annual counts for two different sections of Mack Creek
 vertebrates_section <- vertebrates %>% 
   select(year, section) %>% 
   group_by(year, section) %>% 
-  count(section)
-
-
+  count(section) %>% 
+  mutate(
+    sectionname = case_when(
+      section == 'CC' ~ 'Clear Cut',
+      section == 'OG' ~ 'Old Growth'
+    )
+  )
 ```
 
 ```{r}
 # Plot changes in counts over time for both sections
-
-ggplot(data = vertebrates_section, aes(x = year, y = n)) +
-  geom_line(aes(color = section), show.legend = FALSE) +
-  geom_point(aes(color = section), show.legend = FALSE) +
-  facet_wrap(~section) +
+ggplot(data = vertebrates_section, aes(x = year, y = n, color = sectionname)) +
+  geom_line(show.legend = T) +
+  geom_point(show.legend = FALSE) +
   theme_bw() +
   scale_x_continuous(expand = c(0.1,0)) +
   scale_y_continuous(expand = c(0.1,0)) +
-  labs(x = "year",
-       y = "salamander count",
-       title = "Change in salamander counts in old growth and clear cut forests",
-       subtitle = "1987 - 2017",
-       caption = "Figure 1: Changes in salamander abundance in old growth and clear cut forests from 1987 to 2017") 
-
-ggplot(data = vertebrates_section, aes(x = year, y = n)) +
-  geom_col(aes(fill = section), color = "black", show.legend = FALSE) +
-  facet_wrap(~section) +
-  theme_bw() +
-  scale_x_continuous(expand = c(0,0)) +
-  scale_y_continuous(expand = c(0,0)) +
   labs(x = "Year",
-       y = "No. Salamanders Observed",
-       title = "Change in salamander counts in old growth and clear cut forests",
-       subtitle = "1987 - 2017",
-       caption = "Figure 1: Changes in salamander abundance in old growth and clear cut forests from 1987 to 2017") 
+       y = "Salamander Count",
+       title = "Pacific Giant Salamanders observed in different forest types, 1987-2017",
+       color = 'Forest Type') 
 ```
+**Figure 2: Abundance of Pacific Giant Salamanders over time in each of the two forest type designations, 1987-2017.** *The red line represents the number of salamanders observed in clear cut sections of forest, whereas the blue line represents the number of salamanders observed in old growth forest.*
 
-#### Results B: Table of 2017 salamander counts by channel classification (pool, cascades and side-channel) in old growth (OG) and clear cut (CC) sections of Mack Creek.
+#### Spatial Trends in Salamander Abundance (2017)
 
+**Figure 3: Number and proportion of Giant Salamander observations in 2017 by location.** *For each combination of forest section and channel classification, whole numbers indicate the number of salamanders observed there, and percentages indicate the proportion of salamanders observed in that forest section that the whole number represents.*
 ```{r}
-# Group by OG and CC sections, and keep only data for pool, cascades, and side channels in 2017
-
+# Filtering for salamanders observed in channel in the year 2017, and then grouping by OG and CC sections. 
 vertebrates_count <- vertebrates %>%
   select(year, section, unittype) %>% 
   filter(year == "2017", unittype %in% c("C", "P", "SC")) %>% 
@@ -91,18 +81,27 @@ vertebrates_count <- vertebrates %>%
   pivot_wider(names_from = unittype, values_from = n) %>% 
   adorn_percentages(denominator = "row") %>% 
   adorn_pct_formatting(digits = 0) %>% 
-  adorn_ns(position = "front")
-
+  adorn_ns(position = "front") %>% 
+  mutate(
+    section = case_when(
+      section == 'CC' ~ 'Clear Cut',
+      section == 'OG' ~ 'Old Growth'
+    )
+  ) 
+# Taking the results of our filtering and grouping above and displaying them within a Kable table along with the proportions we adorned them with above.
 vertebrates_count %>%
   kable(col.names = c("Forest Section", "Cascade", "Pool", "Side Channel")) %>% 
+  column_spec(c(1), border_right = T, bold = c(T)) %>%
+  add_header_above(c(" " = 1, "Channel Classification" = 3)) %>% 
+  add_header_above(c("Salamander Observations by Location" = 4),
+                   bold = T,
+                   color = 'white',
+                   background = 'grey') %>% 
   kable_styling()
-  
 ```
 
-#### Results C: Significance of the effect of forest condition on channel location.
-
 ```{r}
-# Same as before, now for chi-sqd test
+# Doing the same filtering and grouping as above, minus the porportion adorning, and then performing a Chi-squared test at the 95% confidence level and storing the results as 'vert_chi_test'
 vertebrates_chi <- vertebrates %>%
   select(year, section, unittype) %>% 
   filter(year == "2017", unittype %in% c("C", "P", "SC")) %>% 
@@ -111,14 +110,13 @@ vertebrates_chi <- vertebrates %>%
   select(-section)
 
 vert_chi_test <- chisq.test(vertebrates_chi)
-vert_chi_test
 ```
 
 
-#### Results D: Comparison of weights in 2017 between sections.
+#### Spatial Trends in Salamander Weight (2017)
 
 ```{r}
-# Running a t test and a Mann-Whitney U test for weights between the two sections
+# Grouping the observations of the weights of the salamanders observed in 2017 by forest section, and storing the results in vectors 
 vertebrates_weights <- vertebrates %>% 
   filter(year == "2017", unittype %in% c("C", "P", "SC")) %>% 
   select(weight, section, unittype) 
@@ -132,38 +130,36 @@ CC_weights <- vertebrates_weights %>%
   filter(section == 'CC') %>% 
   select(weight)
 CC_wts_vec <- CC_weights$weight
-
+# Running a t test and a Mann-Whitney U test on the samples of weights and calculating Cohen's D.
 weights_man_w <- wilcox.test(OG_wts_vec, CC_wts_vec)
 weights_t <- t.test(OG_wts_vec, CC_wts_vec)
 weights_d <- cohen.d(OG_wts_vec, CC_wts_vec)
 
-
+# Uncomment these lines below to view the shape of the data
 # ggplot(data = OG_weights, aes(x = weight)) +
 #   geom_histogram()
 # ggplot(data = CC_weights, aes(x = weight)) +
 #   geom_histogram()
-
 ```
 
 
-#### Results E: Comparison of the weights between channel locations.
-
 ```{r}
-# Wrangling the data for results E
-C_weights <- vertebrates_weights %>% 
-  filter(unittype == 'C') %>% 
-  select(weight)
-c_wts_vec <- C_weights$weight
-
-P_weights <- vertebrates_weights %>% 
-  filter(unittype == 'P') %>% 
-  select(weight)
-p_wts_vec <- P_weights$weight
-
-SC_weights <- vertebrates_weights %>% 
-  filter(unittype == 'SC') %>% 
-  select(weight)
-sc_wts_vec <- SC_weights$weight
+# Wrangling the data for display in results E and calculating some sample statistics
+# Uncomment the lines below if you want the data in vector format
+# C_weights <- vertebrates_weights %>% 
+#   filter(unittype == 'C') %>% 
+#   select(weight)
+# c_wts_vec <- C_weights$weight
+# 
+# P_weights <- vertebrates_weights %>% 
+#   filter(unittype == 'P') %>% 
+#   select(weight)
+# p_wts_vec <- P_weights$weight
+# 
+# SC_weights <- vertebrates_weights %>% 
+#   filter(unittype == 'SC') %>% 
+#   select(weight)
+# sc_wts_vec <- SC_weights$weight
 
 weights <- vertebrates_weights %>% 
   select(-section) %>% 
@@ -171,44 +167,101 @@ weights <- vertebrates_weights %>%
 
 weights_summary <- weights %>% 
   summarize(mean_weight = mean(weight, na.rm = TRUE),
+            median_weight = median(weight, na.rm = TRUE),
             sd_weight = sd(weight, na.rm = TRUE),
             sample_size = n(),
             se_weight = sd((weight) / sqrt(n()), (na.rm = TRUE)),
             var_weight = var(weight, na.rm = TRUE))
-
 ```
 
 ```{r}
-# Visually comparing weights using a beeswarm plot (@ALEX: I think beeswarm with mean, maybe median (help with third part of E) and standard error is the way to go here cuz it's easy and gets the job done - ya boi is trying to work on this whole thing as little as possible lol)
-
-ggplot() +
-  geom_jitter(data = weights,
-                aes(x = unittype, y = weight),
-                size = 1,
-              color = "gray70") +
-  scale_x_discrete(labels = c("Cascade", "Pools", "Side Channel")) +
-  geom_point(data = weights_summary, aes(x = unittype, y = mean_weight)) +
-  geom_errorbar(data = weights_summary,
-                aes(x = unittype,
-                    ymin = mean_weight - sd_weight,
-                    ymax = mean_weight + sd_weight),
-                width = 0.2) +
-  labs(x = "Unit Type",
-       y = "Weight (g)",
-       title = "Pacific Giant Salamander weights in cascades, pools, and side channels")
-  
-  ggplot(data = weights, aes(x = weight, y = unittype)) +
-  geom_density_ridges(aes(fill = unittype, alpha = 0.5),
+# Visually comparing weights using a ridgeline plot. Maybe add a slightly more visible representation of the ends of the SD range?
+ggplot(data = weights, aes(x = weight, y = unittype)) +
+    geom_vline(xintercept = 0, color = 'grey70') +
+    annotate("pointrange", 
+           x = weights_summary$mean_weight[1], 
+           y = weights_summary$unittype[1], 
+           ymin = weights_summary$unittype[1],
+           ymax = weights_summary$unittype[1],
+           colour = "darkred", 
+           size = 1.15,
+           pch = '|',) +
+   annotate("pointrange", 
+           x = weights_summary$median_weight[1], 
+           y = weights_summary$unittype[1], 
+           ymin = weights_summary$unittype[1],
+           ymax = weights_summary$unittype[1],
+           colour = "darkred", 
+           size = 1.1,
+           pch = 20,) +
+    annotate("segment", 
+           x = weights_summary$mean_weight[1] - weights_summary$sd_weight[1], 
+           y = weights_summary$unittype[1], 
+           xend = weights_summary$mean_weight[1] + weights_summary$sd_weight[1],
+           yend = weights_summary$unittype[1],
+           colour = "darkred",
+           alpha = 0.85,
+           lwd = 1.25) +
+    annotate("pointrange", 
+           x = weights_summary$mean_weight[2], 
+           y = weights_summary$unittype[2], 
+           ymin = weights_summary$unittype[2],
+           ymax = weights_summary$unittype[2],
+           colour = "darkgreen", 
+           size = 1.15,
+           pch = '|') +
+    annotate("pointrange", 
+           x = weights_summary$median_weight[2], 
+           y = weights_summary$unittype[2], 
+           ymin = weights_summary$unittype[2],
+           ymax = weights_summary$unittype[2],
+           colour = "darkgreen", 
+           size = 1.1,
+           pch = 20,) +
+    annotate("segment", 
+           x = weights_summary$mean_weight[2] - weights_summary$sd_weight[2], 
+           y = weights_summary$unittype[2], 
+           xend = weights_summary$mean_weight[2] + weights_summary$sd_weight[2],
+           yend = weights_summary$unittype[2],
+           colour = "darkgreen",
+           alpha = 0.85,
+           lwd = 1.25) + 
+    annotate("pointrange", 
+           x = weights_summary$mean_weight[3], 
+           y = weights_summary$unittype[3], 
+           ymin = weights_summary$unittype[3],
+           ymax = weights_summary$unittype[3],
+           colour = "darkblue", 
+           size = 1.15,
+           pch = '|') +
+    annotate("pointrange", 
+           x = weights_summary$median_weight[3], 
+           y = weights_summary$unittype[3], 
+           ymin = weights_summary$unittype[3],
+           ymax = weights_summary$unittype[3],
+           colour = "darkblue", 
+           size = 1.1,
+           pch = 20,) +
+    annotate("segment", 
+           x = weights_summary$mean_weight[3] - weights_summary$sd_weight[3], 
+           y = weights_summary$unittype[3], 
+           xend = weights_summary$mean_weight[1] + weights_summary$sd_weight[3],
+           yend = weights_summary$unittype[3],
+           colour = "darkblue",
+           alpha = 0.85,
+           lwd = 1.25) +
+    geom_density_ridges(aes(fill = unittype, alpha = 0.5),
                       show.legend = FALSE) +
-    scale_x_continuous(expand = c(0,0)) +
+    scale_x_continuous(limits = c(-5, 50),
+                       expand = c(0,0)) +
     scale_y_discrete(labels = c("Side Channel", "Pool", "Cascade")) +
-    geom_point(data = weights_summary, aes(x = mean_weight, y = unittype)) +
     theme_minimal() +
     labs(x = "Weight (g)",
-       y = "Unit Type",
-       title = "Pacific Giant Salamander weights in cascades, pools, and side channels")
-
+       y = "Channel Classification",
+       title = "Distribution of salamander weights by channel location")
 ```
+**Figure 4: Distribution of Pacific Giant Salamander weights based on measurement location within the river channel.** *Blue corresponds to salamanders recorded in the cascade section, green to the pool section, and red to the side channel section. The vertical tick beneath the distribution of the matching color shows to the location of the mean of that distribution, the solid dot shows the location and of the median, and the horizontal line extending in either direction shows the width of one standard deviation from the mean.*
+
 
 ```{r}
 #One-way ANOVA test to compare means across cascade, pool, and side channel salamanders
@@ -228,3 +281,7 @@ post_hoc
 ```
 
 We are concerned with comparing means across unit types because the data is not normally distributed.  The data is positively skewed, and so medians would be better for statistical analysis.  For this we would run a Kruskal-Wallis non-parametric test.
+
+### Summary
+
+### References
