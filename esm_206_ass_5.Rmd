@@ -17,7 +17,9 @@ The Pacific Giant Salamander, Dicamptodon tenebrosus, is native to the Pacific N
 
 ### Data and Methods
 
-Data for Pacific Giant Salamander population numbers and individual sizes were collected by annual survey of aquatic vertebrates in Andrews Experimental Forest, Oregon by the [Andrews Forest LTER Site](https://andrewsforest.oregonstate.edu/).  Forest section type (OC and CC) and channel unit classification type (Pool, Cascade, and Side Channel), were defined by specific characteristics of each location.  For more information on data and collection methods, see [metadata](https://portal.edirepository.org/nis/metadataviewer?packageid=knb-lter-and.4027.12).  Salamander counts from 1987-2017 were compared between Old Growth and Clear Cut forests.  Giant Salamander spatial trends across three channel types (Cascade, Pool, and Side channel) were compared between Old Growth and Clear Cut forests to identify, if any, a relationship between section of forest and channel type.  Trends in this relationship were compared by Chi-squared test at a 95% confidence interval.  Mean salamander size across Cascades, Pools, and Side Channels were compared by one-way ANOVA
+Data for Pacific Giant Salamander population numbers and individual sizes were collected by annual survey of aquatic vertebrates in Andrews Experimental Forest, Oregon by the [Andrews Forest LTER Site](https://andrewsforest.oregonstate.edu/).  Forest section type (OC and CC) and channel unit classification type (Pool, Cascade, and Side Channel), were defined by specific characteristics of each location.  For more information on data and collection methods, see [metadata](https://portal.edirepository.org/nis/metadataviewer?packageid=knb-lter-and.4027.12). 
+
+Salamander counts from 1987-2017 were compared between Old Growth and Clear Cut forests.  Giant Salamander spatial trends across three channel types (Cascade, Pool, and Side channel) were compared between Old Growth and Clear Cut forests to identify, if any, a relationship between section of forest and channel type.  Trends in this relationship were compared by Chi-squared test at a 95% confidence interval.  Mean salamander weights between Old Growth and Clear Cut forests were compared by two-sided t-test, and mediam salamander weights were compared by Mann-Whitney U test (α = 0.05 throughout).  Mean salamander size across Cascades, Pools, and Side Channels were compared by two-way ANOVA followed by a Tukey's HSD post-hoc test in order to understand those differences more thoroughly.  
 
 This analysis was performed in Rstudio version 1.2.1335 running R version 3.6.1. The following packages were used in this report:
 
@@ -76,15 +78,15 @@ ggplot(data = vertebrates_section, aes(x = year, y = n, color = sectionname)) +
                      limits = c(0,400)) +
   labs(x = "Year",
        y = "Salamander Count",
-       title = "Pacific Giant Salamanders observed in different forest types, 1993-2017",
-       color = 'Forest Type') 
+       title = "Pacific Giant Salamanders observed in different forest sections, 1993-2017",
+       color = 'Forest Section') 
 ```
 **Figure 2: Abundance of Pacific Giant Salamanders over time in each of the two forest type designations, 1987-2017.** *The red line represents the number of salamanders observed in clear cut sections of forest, whereas the blue line represents the number of salamanders observed in old growth forest.*
 
 Examining the plot above, it becomes apparent that the two populations have displayed similar behavior over time. The movement in one roughly mirrors that of the other (see 2001-2007 for a good example of this). Both populations display the same general trend upwards, and neither is consistently greater than the other. We can also see that, in 2017, both populations have fairly similar abundance - `r vertebrates_section$n[49]` were recorded in the clear cut and `r vertebrates_section$n[50]` in the old growth. This brought us to the next step of our investigation: how forest conditions might influence where in the channel salamanders live. 
 
 #### Spatial Trends in Salamander Abundance (2017)
-To begin, we first created a table of the counts of salamanders found in three distinct channel areas designated by this study. We excluded 'isolated pool' salamanders to control solely for salamanders found in-stream. The table of counts and the proportion for that type of forest section that the count for that channel area represents can be found below in Figure 3. 
+To begin, we first created a table of the counts of salamanders found in three distinct channel areas designated by this study. We excluded 'isolated pool' salamanders to control solely for salamanders found in-stream. The table of counts and the proportion of observations in that type of forest section that the count in that channel area represents can be found below in Figure 3. 
 
 **Figure 3: Number and proportion of Giant Salamander observations in 2017 by location.** *For each combination of forest section and channel classification, whole numbers indicate the number of salamanders observed there, and percentages indicate the proportion of salamanders observed in that forest section that the whole number represents.*
 ```{r}
@@ -114,7 +116,6 @@ vertebrates_count %>%
                    background = 'grey') %>% 
   kable_styling()
 ```
-
 ```{r}
 # Doing the same filtering and grouping as above, minus the porportion adorning, and then performing a Chi-squared test at the 95% confidence level and storing the results as 'vert_chi_test'
 vertebrates_chi <- vertebrates %>%
@@ -126,10 +127,11 @@ vertebrates_chi <- vertebrates %>%
 
 vert_chi_test <- chisq.test(vertebrates_chi)
 ```
+Examining the table above, both forest sections show roughly similar breakdowns of salamanders observed. The majority were found in cascades, followed by side channels and lastly within pools. In the old growth section, proportionally and numerically more salamanders were found in pools and less in cascades and side channels. However, proportions were still fairly similar for both, as the biggest difference was 6% between pool observations.
 
+In order to assess this slight yet apparent difference statistically, we conducted a Chi-Squared Test at the 95% confidence level. Interestingly, we found that there was no statisitically significant effect of forest section on salamander location within the river channel ($\chi^2$(`r vert_chi_test$parameter[1]`) = `r vert_chi_test$statistic[1]`, *p* = `r vert_chi_test$p.value[1]`). Considering the definition of a p-value, we can say that there is an approximately 6.3% chance that we recorded this distribution of salamanders within the channel if the populations were in fact identically distributed between forest section. This is a slim chance, yet still statistically insignificant nonetheless, and the lack of statistical significance perhaps reflects of how small that difference appeared to be at first glance.   
 
 #### Spatial Trends in Salamander Weight (2017)
-
 ```{r}
 # Grouping the observations of the weights of the salamanders observed in 2017 by forest section, and storing the results in vectors 
 vertebrates_weights <- vertebrates %>% 
@@ -140,11 +142,14 @@ OG_weights <- vertebrates_weights %>%
   filter(section == 'OG') %>% 
   select(weight)
 OG_wts_vec <- OG_weights$weight
+n_OG <- length(OG_wts_vec)
 
 CC_weights <- vertebrates_weights %>% 
   filter(section == 'CC') %>% 
   select(weight)
 CC_wts_vec <- CC_weights$weight
+n_CC <- length(CC_wts_vec)
+
 # Running a t test and a Mann-Whitney U test on the samples of weights and calculating Cohen's D.
 weights_man_w <- wilcox.test(OG_wts_vec, CC_wts_vec)
 weights_t <- t.test(OG_wts_vec, CC_wts_vec)
@@ -156,8 +161,9 @@ weights_d <- cohen.d(OG_wts_vec, CC_wts_vec)
 # ggplot(data = CC_weights, aes(x = weight)) +
 #   geom_histogram()
 ```
+We then turned to salamander weight to assess how the populations might be different in different forest conditions. We conducted a t-test at the 95% confidence level, and found that there was no statistically significant difference in mean weights of salamanders between the sections ((*t*(`r weights_t$parameter[1]`) = `r weights_t$statistic[1]`, *p* = `r weights_t$p.value[1]`, n = `r n_OG` for old growth and `r n_CC` for clear cut)). 
 
-
+Combined with the results of our Chi-Squared test above, we do not appear to have found any evidence for the effect that forest type may have on salamander populations, both in their abundance and mean weight.
 ```{r}
 # Wrangling the data for display in results E and calculating some sample statistics
 C_weights <- vertebrates_weights %>%
@@ -192,7 +198,7 @@ weights_summary <- weights %>%
             se_weight = sd((weight) / sqrt(n()), (na.rm = TRUE)),
             var_weight = var(weight, na.rm = TRUE))
 ```
-
+Next, we moved on to an examination of how location within the river channel might influence salamander weight. 
 ```{r}
 # Visually comparing weights using a ridgeline plot. Maybe add a slightly more visible representation of the ends of the SD range?
 ggplot(data = weights, aes(x = weight, y = unittype)) +
