@@ -9,6 +9,10 @@ output: html_document
 
 The Pacific Giant Salamander, Dicamptodon tenebrosus, is native to the Pacific Northwest of the United States, ranging from Northern California to Southern British Columbia (Gonder 1999).  The size, weight, and distribution of Giant Salamanders, as well as salmonid species, have been studied in order to understand the effects of land use changes in the Andrews Experimental Forest on the Western slope of the Cascade Mountain range in Oregon (HJ Andrews Experimental Forest LTER 2011).  Beginning in 1993, Gregory S. V. and Andrews Forest LTER started to model salamander population size and population distribution, as well as individual characteristics such as length and weight.  With accurate, long term data regarding these variables amongst the Pacific Giant Salamander, we can examine trends in population health and preference based on forest type and land use, as well as stream habitat classification (Gregory S. V. 2016).  In this report, we used data collected by the Andrews Forest LTER Site to compare Pacific Giant Salamander population characteristics across old growth and clear cut forests, as well as more specific habitat classification, specifically cascades, pools, and stream side channels.
 
+![](PacificGiantSalamanderODFW.jpg)
+**Figure 1**: Pacific Giant Salamander (Dicamptodon tenebrosus).  Credit: [Oregon Wild](https://oregonwild.org/wildlife/pacific-giant-salamander
+)
+
 
 
 ### Data and Methods
