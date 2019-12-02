@@ -9,7 +9,10 @@ output: html_document
 
 The Pacific Giant Salamander, Dicamptodon tenebrosus, is native to the Pacific Northwest of the United States, ranging from Northern California to Southern British Columbia (Gonder 1999).  The size, weight, and distribution of Giant Salamanders, as well as salmonid species, have been studied in order to understand the effects of land use changes in the Andrews Experimental Forest on the Western slope of the Cascade Mountain range in Oregon (HJ Andrews Experimental Forest LTER 2011).  Beginning in 1993, Gregory S. V. and Andrews Forest LTER started to model salamander population size and population distribution, as well as individual characteristics such as length and weight.  With accurate, long term data regarding these variables amongst the Pacific Giant Salamander, we can examine trends in population health and preference based on forest type and land use, as well as stream habitat classification (Gregory S. V. 2016).  In this report, we used data collected by the Andrews Forest LTER Site to compare Pacific Giant Salamander population characteristics across old growth and clear cut forests, as well as more specific habitat classification, specifically cascades, pools, and stream side channels.
 
+
+
 ### Data and Methods
+
 
 This analysis was performed in Rstudio version 1.2.1335 running R version 3.6.1. The following packages were used in this report:
 
@@ -41,8 +44,8 @@ vertebrates <- read_csv("mack_creek_vertebrates.csv") %>%
 
 ### Results
 
-#### Temporal Trends in Salamander Abundance (1987-2017)
-First, we examined how the population of Pacific Giant Salamanders studied had changed throughout the course of the study. Specifically, we wanted to visually check if the condition of the forest in which they lived (old growth vs clear cut) had a clear influence on the overall abundance of salamanders. We created a plot of two timeseries of total number of salamanders counted in each of the sections between 1987 and 2017, shown below in Figure 2.
+#### Temporal Trends in Abundance (1993-2017)
+First, we examined how the population of Pacific Giant Salamanders studied had changed throughout the course of the study. Specifically, we wanted to visually check if the condition of the forest in which they lived (old growth vs clear cut) had a clear influence on the overall abundance of salamanders. We created a plot of two timeseries of total number of salamanders counted in each of the sections between 1993 and 2017 (the years salamanders were observed), shown below in Figure 2.
 ```{r}
 # Find total annual counts for two different sections of Mack Creek
 vertebrates_section <- vertebrates %>% 
@@ -62,18 +65,21 @@ ggplot(data = vertebrates_section, aes(x = year, y = n, color = sectionname)) +
   geom_line(show.legend = T) +
   geom_point(show.legend = FALSE) +
   theme_bw() +
-  scale_x_continuous(expand = c(0.1,0)) +
-  scale_y_continuous(expand = c(0.1,0)) +
+  scale_x_continuous(expand = c(0.1,0),
+                     breaks = seq(1990,2020,5)) +
+  scale_y_continuous(expand = c(0.1,0),
+                     limits = c(0,400)) +
   labs(x = "Year",
        y = "Salamander Count",
-       title = "Pacific Giant Salamanders observed in different forest types, 1987-2017",
+       title = "Pacific Giant Salamanders observed in different forest types, 1993-2017",
        color = 'Forest Type') 
 ```
 **Figure 2: Abundance of Pacific Giant Salamanders over time in each of the two forest type designations, 1987-2017.** *The red line represents the number of salamanders observed in clear cut sections of forest, whereas the blue line represents the number of salamanders observed in old growth forest.*
 
-Examining the plot above, it becomes apparent that the two populations have displayed similar behavior over time. The movement in one roughly mirrors that of the other (see 1987-1990 and 2004-2006 for examples of this). Both populations display the same general trend upwards, and neither is consistently greater than the other. We can also see that, in 2017, both populations have very similar abundance. This brought us to the next step of our investigation: how forest conditions might influence where in the channel salamanders live. 
+Examining the plot above, it becomes apparent that the two populations have displayed similar behavior over time. The movement in one roughly mirrors that of the other (see 2001-2007 for a good example of this). Both populations display the same general trend upwards, and neither is consistently greater than the other. We can also see that, in 2017, both populations have fairly similar abundance - `r vertebrates_section$n[49]` were recorded in the clear cut and `r vertebrates_section$n[50]` in the old growth. This brought us to the next step of our investigation: how forest conditions might influence where in the channel salamanders live. 
 
 #### Spatial Trends in Salamander Abundance (2017)
+To begin, we first created a table of the counts of salamanders found in three distinct channel areas designated by this study. We excluded 'isolated pool' salamanders to control solely for salamanders found in-stream. The table of counts and the proportion for that type of forest section that the count for that channel area represents can be found below in Figure 3. 
 
 **Figure 3: Number and proportion of Giant Salamander observations in 2017 by location.** *For each combination of forest section and channel classification, whole numbers indicate the number of salamanders observed there, and percentages indicate the proportion of salamanders observed in that forest section that the whole number represents.*
 ```{r}
