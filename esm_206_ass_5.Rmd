@@ -39,7 +39,7 @@ vertebrates <- read_csv("mack_creek_vertebrates.csv") %>%
 ### Results
 
 #### Temporal Trends in Salamander Abundance (1987-2017)
-
+First, we examined how the population of Pacific Giant Salamanders studied had changed throughout the course of the study. Specifically, we wanted to visually check if the condition of the forest in which they lived (old growth vs clear cut) had a clear influence on the overall abundance of salamanders. We created a plot of two timeseries of total number of salamanders counted in each of the sections between 1987 and 2017, shown below in Figure 2.
 ```{r}
 # Find total annual counts for two different sections of Mack Creek
 vertebrates_section <- vertebrates %>% 
@@ -145,21 +145,25 @@ weights_d <- cohen.d(OG_wts_vec, CC_wts_vec)
 
 ```{r}
 # Wrangling the data for display in results E and calculating some sample statistics
-# Uncomment the lines below if you want the data in vector format
-# C_weights <- vertebrates_weights %>% 
-#   filter(unittype == 'C') %>% 
-#   select(weight)
-# c_wts_vec <- C_weights$weight
-# 
-# P_weights <- vertebrates_weights %>% 
-#   filter(unittype == 'P') %>% 
-#   select(weight)
-# p_wts_vec <- P_weights$weight
-# 
-# SC_weights <- vertebrates_weights %>% 
-#   filter(unittype == 'SC') %>% 
-#   select(weight)
-# sc_wts_vec <- SC_weights$weight
+C_weights <- vertebrates_weights %>%
+  filter(unittype == 'C') %>%
+  select(weight)
+c_wts_vec <- C_weights$weight
+c_wts_vec <- c_wts_vec[!is.na(c_wts_vec)]
+
+P_weights <- vertebrates_weights %>%
+  filter(unittype == 'P') %>%
+  select(weight)
+p_wts_vec <- P_weights$weight
+p_wts_vec <- p_wts_vec[!is.na(p_wts_vec)]
+
+
+SC_weights <- vertebrates_weights %>%
+  filter(unittype == 'SC') %>%
+  select(weight)
+sc_wts_vec <- SC_weights$weight
+sc_wts_vec <- sc_wts_vec[!is.na(sc_wts_vec)]
+
 
 weights <- vertebrates_weights %>% 
   select(-section) %>% 
@@ -264,20 +268,27 @@ ggplot(data = weights, aes(x = weight, y = unittype)) +
 
 
 ```{r}
-#One-way ANOVA test to compare means across cascade, pool, and side channel salamanders
-
-#H0 - Means across all three are the same
-#Ha - At least two means are different
-
+# One-way ANOVA test to compare means across cascade, pool, and side channel salamanders
 weight_anova <- aov(weight ~ unittype, data = weights)
 summary(weight_anova)
 
+# Post-hoc test to look a bit more closely at that
 post_hoc <- TukeyHSD(weight_anova)
+post_hoc$unittype[1,1]
+post_hoc$unittype[2,1]
 post_hoc
 
-# p-value << 0.01 so we reject the null hypothesis.
-# Post hoc Tukey HSD test reveals that Side-Channels and Cascade mean size are not signficantly different, however, pool means differ significantly from cascade and side channel means.
-# I DONT KNOW WHY WE ARE COMPARING MEANS IF THE DATA IS NOT NORMALLY DISTRIBUTED.  Seems like medians would be better, however, results E asks us to compare means.
+# Computing what percent of pool mean weight the cascade and side channel mean weights are
+pctdiff_CvP <- weights_summary$mean_weight[1]/weights_summary$mean_weight[2]
+pctdiff_SCvP <- weights_summary$mean_weight[3]/weights_summary$mean_weight[2]
+
+# Lastly, computing the effect size of each of the combinations and storing them as individual variables for referencing
+p_c_eff <- cohen.d(p_wts_vec, c_wts_vec)
+p_c_d <- abs(p_c_eff$estimate)
+sc_c_eff <- cohen.d(sc_wts_vec, c_wts_vec)
+sc_c_d <- abs(sc_c_eff$estimate)
+sc_p_eff <- cohen.d(sc_wts_vec, p_wts_vec)
+sc_p_d <- abs(sc_p_eff$estimate)
 ```
 
 We are concerned with comparing means across unit types because the data is not normally distributed.  The data is positively skewed, and so medians would be better for statistical analysis.  For this we would run a Kruskal-Wallis non-parametric test.
