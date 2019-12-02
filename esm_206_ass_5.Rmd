@@ -7,9 +7,17 @@ output: html_document
 
 ### Introduction
 
-The Pacific Giant Salamander, Dicamptodon tenebrosus, is native to the Pacific Northwest of the United States, ranging from Northern California to Southern British Columbia (Gonder 1999).  The size, weight, and distribution of Giant Salamanders, as well as salmonid species, have been studied in order to understand the effects of land use changes in the Andrews Experimental Forest on the Western slope of the Cascade Mountain range in Oregon (HJ Andrews Experimental Forest LTER 2011).  Beginning in 1993, 
+The Pacific Giant Salamander, Dicamptodon tenebrosus, is native to the Pacific Northwest of the United States, ranging from Northern California to Southern British Columbia (Gonder 1999).  The size, weight, and distribution of Giant Salamanders, as well as salmonid species, have been studied in order to understand the effects of land use changes in the Andrews Experimental Forest on the Western slope of the Cascade Mountain range in Oregon (HJ Andrews Experimental Forest LTER 2011).  Beginning in 1993, Gregory S. V. and Andrews Forest LTER started to model salamander population size and population distribution, as well as individual characteristics such as length and weight.  With accurate, long term data regarding these variables amongst the Pacific Giant Salamander, we can examine trends in population health and preference based on forest type and land use, as well as stream habitat classification (Gregory S. V. 2016).  In this report, we used data collected by the Andrews Forest LTER Site to compare Pacific Giant Salamander population characteristics across old growth and clear cut forests, as well as more specific habitat classification, specifically cascades, pools, and stream side channels.
+
+![](PacificGiantSalamanderODFW.jpg)
+**Figure 1**: Pacific Giant Salamander (Dicamptodon tenebrosus).  Credit: [Oregon Wild](https://oregonwild.org/wildlife/pacific-giant-salamander
+)
+
+
 
 ### Data and Methods
+
+Data for Pacific Giant Salamander population numbers and individual sizes were collected by annual survey of aquatic vertebrates in Andrews Experimental Forest, Oregon by the [Andrews Forest LTER Site](https://andrewsforest.oregonstate.edu/).  Forest section type (OC and CC) and channel unit classification type (Pool, Cascade, and Side Channel), were defined by specific characteristics of each location.  For more information on data and collection methods, see [metadata](https://portal.edirepository.org/nis/metadataviewer?packageid=knb-lter-and.4027.12).  Salamander counts from 1987-2017 were compared between Old Growth and Clear Cut forests.  Giant Salamander spatial trends across three channel types (Cascade, Pool, and Side channel) were compared between Old Growth and Clear Cut forests to identify, if any, a relationship between section of forest and channel type.  Trends in this relationship were compared by Chi-squared test at a 95% confidence interval.
 
 This analysis was performed in Rstudio version 1.2.1335 running R version 3.6.1. The following packages were used in this report:
 
@@ -33,7 +41,7 @@ library(ggridges)
 ```
 
 ```{r}
-# Reading in data and cleaning names
+# Reading in data, cleaning names, and making our data frame correspond to only salamander observations
 vertebrates <- read_csv("mack_creek_vertebrates.csv") %>% 
   clean_names() %>% 
   filter(species == "DITE")
@@ -119,7 +127,7 @@ vert_chi_test <- chisq.test(vertebrates_chi)
 ```
 Examining the table above, both forest sections show roughly similar breakdowns of salamanders observed. The majority were found in cascades, followed by side channels and lastly within pools. In the old growth section, proportionally and numerically more salamanders were found in pools and less in cascades and side channels. However, proportions were still fairly similar for both, as the biggest difference was 6% between pool observations.
 
-In order to assess this slight yet apparent difference statistically, we conducted a Chi-Squared Test at the 95% confidence level. Interestingly, we found that there was no statisitically significant effect of forest section on salamander location within the river channel ($\chi^2$(`r vert_chi_test$parameter[1]`) = `r vert_chi_test$statistic[1]`, *p* = `r vert_chi_test$p.value[1]`). Considering the definition of a p-value, we can say that there is an approximately 6.3% chance that we recorded this distribution of salamanders within the channel if the populations were in fact identically distributed between forest section. This is a slim chance, yet still statistically insignificant nonetheless, and the lack of statistical significance perhaps reflects of how small that difference appeared to be at first glance.   
+In order to assess this slight yet apparent difference statistically, we conducted a Chi-Squared Test at the 95% confidence level. Interestingly, we found that there was no statisitically significant effect of forest section on salamander location within the river channel ($\chi^2$(`r vert_chi_test$parameter[1]`) = `r round(vert_chi_test$statistic[1],3)`, *p* = `r round(vert_chi_test$p.value[1],3)`). Considering the definition of a p-value, we can say that there is an approximately 6.3% chance that we recorded this distribution of salamanders within the channel if the populations were in fact identically distributed between forest section. This is a slim chance, yet still statistically insignificant nonetheless, and the lack of statistical significance perhaps reflects of how small that difference appeared to be at first glance.   
 
 #### Spatial Trends in Salamander Weight (2017)
 ```{r}
@@ -151,11 +159,11 @@ weights_d <- cohen.d(OG_wts_vec, CC_wts_vec)
 # ggplot(data = CC_weights, aes(x = weight)) +
 #   geom_histogram()
 ```
-We then turned to salamander weight to assess how the populations might be different in different forest conditions. We conducted a t-test at the 95% confidence level, and found that there was no statistically significant difference in mean weights of salamanders between the sections ((*t*(`r weights_t$parameter[1]`) = `r weights_t$statistic[1]`, *p* = `r weights_t$p.value[1]`, n = `r n_OG` for old growth and `r n_CC` for clear cut)). 
+We then turned to salamander weight to assess how the populations might be different in different forest conditions. We conducted a t-test at the 95% confidence level, and found that there was no statistically significant difference in mean weights of salamanders between the sections ((*t*(`r round(weights_t$parameter[1],1)`) = `r round(weights_t$statistic[1],3)`, *p* = `r round(weights_t$p.value[1],3)`, n = `r n_OG` for old growth and `r n_CC` for clear cut)). 
 
 Combined with the results of our Chi-Squared test above, we do not appear to have found any evidence for the effect that forest type may have on salamander populations, both in their abundance and mean weight.
 ```{r}
-# Wrangling the data for display in results E and calculating some sample statistics
+# Wrangling the data for display in results E and calculating and storing some sample statistics
 C_weights <- vertebrates_weights %>%
   filter(unittype == 'C') %>%
   select(weight)
@@ -175,7 +183,6 @@ SC_weights <- vertebrates_weights %>%
 sc_wts_vec <- SC_weights$weight
 sc_wts_vec <- sc_wts_vec[!is.na(sc_wts_vec)]
 
-
 weights <- vertebrates_weights %>% 
   select(-section) %>% 
   group_by(unittype)
@@ -188,7 +195,7 @@ weights_summary <- weights %>%
             se_weight = sd((weight) / sqrt(n()), (na.rm = TRUE)),
             var_weight = var(weight, na.rm = TRUE))
 ```
-Next, we moved on to an examination of how location within the river channel might influence salamander weight. 
+Next, we moved on to an examination of how location within the river channel might influence salamander weight. We first created a ridgeline plot of the distribution of salamander weights based on channel location, which can be found below in Figure 4. It is worth noting that the plots are fitted estimates of kernel density. This explains why the distributions extend past zero, even though that has no real-world meaning - a salamander cannot have negative weight. These plots are therefore better for assessing the general shape of the distribution of weights rather than computing the probability that the weight of a random salamander is within a certain range.
 ```{r}
 # Visually comparing weights using a ridgeline plot. Maybe add a slightly more visible representation of the ends of the SD range?
 ggplot(data = weights, aes(x = weight, y = unittype)) +
@@ -275,23 +282,16 @@ ggplot(data = weights, aes(x = weight, y = unittype)) +
        y = "Channel Classification",
        title = "Distribution of salamander weights by channel location")
 ```
-**Figure 4: Distribution of Pacific Giant Salamander weights based on measurement location within the river channel.** *Blue corresponds to salamanders recorded in the cascade section, green to the pool section, and red to the side channel section. The vertical tick beneath the distribution of the matching color shows to the location of the mean of that distribution, the solid dot shows the location and of the median, and the horizontal line extending in either direction shows the width of one standard deviation from the mean.*
+**Figure 4: Distribution of Pacific Giant Salamander weights based on measurement location within the river channel.** *Blue corresponds to salamanders recorded in the cascade section, green in the pool section, and red in the side channel section. The vertical tick beneath the distribution of the matching color shows to the location of the mean of that distribution, the solid dot shows the location of the median, and the horizontal line extending in either direction shows the width of one standard deviation from the mean.*
 
-
+Examining Figure 4 above, we can see that the distributions of weights were roughly consistent in shape as the each display a positive skew (evidenced by the relative positions of the median and mean as well as visual appearances). They are also fairly consistent in position, having a peak roughly between 0 and 10. They do appear to have different spreads however, as the width of one standard deviation appears much greater for pool weights than the other two.
 ```{r}
 # One-way ANOVA test to compare means across cascade, pool, and side channel salamanders
 weight_anova <- aov(weight ~ unittype, data = weights)
-summary(weight_anova)
+aov_outputs <- unlist(summary(weight_anova))
 
 # Post-hoc test to look a bit more closely at that
 post_hoc <- TukeyHSD(weight_anova)
-post_hoc$unittype[1,1]
-post_hoc$unittype[2,1]
-post_hoc
-
-# Computing what percent of pool mean weight the cascade and side channel mean weights are
-pctdiff_CvP <- weights_summary$mean_weight[1]/weights_summary$mean_weight[2]
-pctdiff_SCvP <- weights_summary$mean_weight[3]/weights_summary$mean_weight[2]
 
 # Lastly, computing the effect size of each of the combinations and storing them as individual variables for referencing
 p_c_eff <- cohen.d(p_wts_vec, c_wts_vec)
@@ -301,8 +301,11 @@ sc_c_d <- abs(sc_c_eff$estimate)
 sc_p_eff <- cohen.d(sc_wts_vec, p_wts_vec)
 sc_p_d <- abs(sc_p_eff$estimate)
 ```
+In order to assess whether the mean weights of salamanders were different in different channel locations, we conducted a two-way ANOVA test at the 95% confidence level. Our results indicated that there was a statistically significant difference in mean weights between channel locations (F(`r aov_outputs[1]`, `r aov_outputs[2]`) = `r round(aov_outputs[7],2)`, *p* = `r round(aov_outputs[9],3)`), so we conducted a Tukey HSD test at the 95% confidence level to see which ones actually differed. From this test, we found only a significant difference between the mean weights of salamanders in side channels vs. pools (*p* = `r post_hoc$unittype[3,4]`), and no significance in both pools vs. cascades (*p* = `r post_hoc$unittype[1,4]`) and side channels vs. cascades (*p* = `r post_hoc$unittype[2,4]`). 
 
-We are concerned with comparing means across unit types because the data is not normally distributed.  The data is positively skewed, and so medians would be better for statistical analysis.  For this we would run a Kruskal-Wallis non-parametric test.
+We then computed Cohen's D for each combination to assess the effect size of the difference. For side channels vs. pools, we found *d* = `r round(sc_p_d,2)`; for pools vs. cascades, we found *d* = `r round(p_c_d,2)`; and for side channels vs. cascades, we found *d* = `r round(sc_c_d,2)`. These results align with our Tukey HSD significances in their relative significances, as well as with our expectations that a statistically significant result would have an at least moderate effect size and insignificant results would have low effect sizes.
+
+However, our results come with a caveat. Our distributions of salamander weights likely violates a basic assumption of ANOVA testing that the populations are normally distributed. As one can see from Figure 4, this assumption likely does not hold. A non-parametric test would likely be more appropriate for comparing weights between channel locations, such as a Kruskal-Wallis test (and for weights between forest sections, such as with a Mann-Whitney test).
 
 ### Summary
 
