@@ -7,6 +7,8 @@ output: html_document
 
 ### Introduction
 
+The Pacific Giant Salamander, Dicamptodon tenebrosus, is native to the Pacific Northwest of the United States, ranging from Northern California to Southern British Columbia (Gonder 1999).  The size, weight, and distribution of Giant Salamanders, as well as salmonid species, have been studied in order to understand the effects of land use changes in the Andrews Experimental Forest on the Western slope of the Cascade Mountain range in Oregon.  
+
 ### Data and Methods
 
 This analysis was performed in Rstudio version 1.2.1335 running R version 3.6.1. The following packages were used in this report:
@@ -53,7 +55,6 @@ vertebrates_section <- vertebrates %>%
     )
   )
 ```
-
 ```{r}
 # Plot changes in counts over time for both sections
 ggplot(data = vertebrates_section, aes(x = year, y = n, color = sectionname)) +
@@ -68,6 +69,8 @@ ggplot(data = vertebrates_section, aes(x = year, y = n, color = sectionname)) +
        color = 'Forest Type') 
 ```
 **Figure 2: Abundance of Pacific Giant Salamanders over time in each of the two forest type designations, 1987-2017.** *The red line represents the number of salamanders observed in clear cut sections of forest, whereas the blue line represents the number of salamanders observed in old growth forest.*
+
+Examining the plot above, it becomes apparent that the two populations have displayed similar behavior over time. The movement in one roughly mirrors that of the other (see 1987-1990 and 2004-2006 for examples of this). Both populations display the same general trend upwards, and neither is consistently greater than the other. We can also see that, in 2017, both populations have very similar abundance. This brought us to the next step of our investigation: how forest conditions might influence where in the channel salamanders live. 
 
 #### Spatial Trends in Salamander Abundance (2017)
 
