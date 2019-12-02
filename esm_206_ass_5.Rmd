@@ -7,6 +7,8 @@ output: html_document
 
 ### Introduction
 
+The Pacific Giant Salamander, Dicamptodon tenebrosus, is native to the Pacific Northwest of the United States, ranging from Northern California to Southern British Columbia (Gonder 1999).  The size, weight, and distribution of Giant Salamanders, as well as salmonid species, have been studied in order to understand the effects of land use changes in the Andrews Experimental Forest on the Western slope of the Cascade Mountain range in Oregon.  
+
 ### Data and Methods
 
 This analysis was performed in Rstudio version 1.2.1335 running R version 3.6.1. The following packages were used in this report:
