@@ -21,7 +21,7 @@ Data for Pacific Giant Salamander population numbers and individual sizes were c
 ![](Map-of-study-sites-and-the-HJ-Andrews-Experimental-forest-HJA-Each-dot-represents-a.png)
 **Figure 1b**: Map of Andrews Experimental Forest, including Mack Creek section. Credit: [Dana Warren](https://www.researchgate.net/publication/314206020_Characterizing_short-term_light_dynamics_in_forested_headwater_streams)
 
-Salamander counts from 1987-2017 were compared between Old Growth and Clear Cut forests.  Giant Salamander spatial trends across three channel types (Cascade, Pool, and Side channel) were compared between Old Growth and Clear Cut forests to identify, if any, a relationship between section of forest and channel type.  Trends in this relationship were compared by Chi-squared test at a 95% confidence interval.  Mean salamander weights between Old Growth and Clear Cut forests were compared by two-sided t-test, and mediam salamander weights were compared by Mann-Whitney U test (α = 0.05 throughout).  Mean salamander size across Cascades, Pools, and Side Channels were compared by two-way ANOVA followed by a Tukey's HSD post-hoc test in order to understand those differences more thoroughly.  
+Salamander counts from 1987-2017 were compared between Old Growth and Clear Cut forests.  Giant Salamander spatial trends across three channel types (Cascade, Pool, and Side channel) were compared between Old Growth and Clear Cut forests to identify, if any, a relationship between section of forest and channel type.  Trends in this relationship were compared by Chi-squared test at a 95% confidence interval.  Mean salamander weights between Old Growth and Clear Cut forests were compared by two-sided t-test, and median salamander weights were compared by Mann-Whitney U test (α = 0.05 throughout).  Mean salamander sizes across Cascades, Pools, and Side Channels were compared by two-way ANOVA followed by a Tukey's HSD post-hoc test in order to understand those differences more thoroughly.  
 
 This analysis was performed in Rstudio version 1.2.1335 running R version 3.6.1. The following packages were used in this report:
 
@@ -294,6 +294,7 @@ ggplot(data = weights, aes(x = weight, y = unittype)) +
 # One-way ANOVA test to compare means across cascade, pool, and side channel salamanders
 weight_anova <- aov(weight ~ unittype, data = weights)
 summary(weight_anova)
+view(weight_anova)
 
 # Post-hoc test to look a bit more closely at that
 post_hoc <- TukeyHSD(weight_anova)
@@ -318,4 +319,17 @@ We are concerned with comparing means across unit types because the data is not 
 
 ### Summary
 
+- Pacific Giant Salamander abundances have increased from 1993 to 2017, with similar population trends and numbers seen in populations of old growth and clear cut forest sections. (Figure 2)
+
+- Forest section (old growth and clear cut) has no signficant effect on salamander location across the three channel types (Cascade, Pool, and Side Channel). (Figure 3)
+
+- Mean salamander weights across the three channel types (Cascade, Pool, and Side Channel) differ signficantly, however, these means are influenced by the positively skewed distribution of weights.  Median salamander weights would be a better statistical metric for comparison. (Figure 4)
+
+- The effect of forest type (old growth and clear cut) on salamander abundance and size, if any, has yet to be seen based on the analysis of the data. (Figure 2 and Figure 3)
+
 ### References
+
+Gonder, M. (1999). *Dicamptodon ensatus - California Giant Salamander*. Animal Diversity Web. Accessed December 02, 2019
+
+Gregory S. V. (2016). *Aquatic Vertebrate Population Study in Mack Creek, Andrews Experimental Forest, 1987 to present*. Environmental Data Initiative. https://doi.org/10.6073/pasta/5de64af9c11579266ef20da2ff32f702. Dataset accessed 11/19/2019.
+
