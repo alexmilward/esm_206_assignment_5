@@ -329,7 +329,10 @@ We are concerned with comparing means across unit types because the data is not 
 
 ### References
 
-Gonder, M. (1999). *Dicamptodon ensatus - California Giant Salamander*. Animal Diversity Web. Accessed December 02, 2019
+**Gonder, M. (1999).** *Dicamptodon ensatus - California Giant Salamander*. Animal Diversity Web. Accessed December 02, 2019
 
-Gregory S. V. (2016). *Aquatic Vertebrate Population Study in Mack Creek, Andrews Experimental Forest, 1987 to present*. Environmental Data Initiative. https://doi.org/10.6073/pasta/5de64af9c11579266ef20da2ff32f702. Dataset accessed 11/19/2019.
+**Gregory S. V. (2016).** *Aquatic Vertebrate Population Study in Mack Creek, Andrews Experimental Forest, 1987 to present*. Environmental Data Initiative. https://doi.org/10.6073/pasta/5de64af9c11579266ef20da2ff32f702. Dataset accessed 11/19/2019
+
+**HJ Andrews Experimental Forest Long Term Ecological Research. (2011)** (https://andrewsforest.oregonstate.edu/). Accessed December 02, 2019
+
 
